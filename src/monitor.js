@@ -73,6 +73,8 @@ export const DEFAULT_TIMINGS = {
 
 // Below this rise per hour, a level is steady: 1 cm (0.01 m).
 const STEADY_PER_HOUR = { cm: 1, m: 0.01 };
+// Readings dated later than this are ignored.
+const FUTURE_MS = 15 * MINUTE;
 // Gauges asked for a fresh reading when choosing those around the house.
 const HOME_CANDIDATES = 10;
 
@@ -124,6 +126,7 @@ export class Monitor {
     this.timings = { ...DEFAULT_TIMINGS, ...timings };
     this.config = null;
     this.data = emptyData();
+    this.listPartial = false;
     // Stations of the configuration, in order (field, then house).
     this.configured = [];
     this.problems = { unknown: [], noHouse: false, tooMany: false };
@@ -285,7 +288,11 @@ export class Monitor {
     };
   }
 
-  /** Every station of the supported states; null when no state answers. */
+  /**
+   * Every station of the supported states (null when no state answers), and
+   * whether a state is missing from them (`partial`): its list failed and no
+   * older one serves.
+   */
   async stationList() {
     const { stations, failed } = await this.api.referential();
     for (const { code, error } of failed) {
@@ -302,6 +309,7 @@ export class Monitor {
         this.recovered(`list:${code}`, `Stations of ${code} downloaded again`);
       }
     }
+    this.listPartial = failed.some((item) => !item.stale);
     return stations.length > 0 ? stations : null;
   }
 
@@ -352,6 +360,9 @@ export class Monitor {
         const station = Monitor.find(stations, token);
         if (station) {
           add(station.id);
+        } else if (this.listPartial) {
+          // Maybe a station of the state whose list is missing: kept as it was.
+          complete = false;
         } else {
           problems.unknown.push(token.text);
         }
@@ -461,7 +472,8 @@ export class Monitor {
         return station.id;
       });
     // The house coordinates are not stored: only the radius and the stations.
-    this.data.home = { radiusKm: radius, ids, at: this.now() };
+    // Chosen without the list of a state: chosen again at the next cycle.
+    this.data.home = this.listPartial ? null : { radiusKm: radius, ids, at: this.now() };
     return ids;
   }
 
@@ -666,7 +678,9 @@ export class Monitor {
     let changed = false;
     for (const key of ['W', 'Q']) {
       const value = current?.[key];
-      if (!value || value.t < (reading[key]?.t ?? -Infinity)) {
+      // A value dated in the future (a forecast, a wrong clock) would block
+      // the real readings: ignored.
+      if (!value || value.t < (reading[key]?.t ?? -Infinity) || value.t > this.now() + FUTURE_MS) {
         continue;
       }
       const isNew = reading[key]?.t !== value.t;
@@ -686,7 +700,7 @@ export class Monitor {
       }
     }
     const stage = current?.W && Number.isInteger(current.stage) ? current.stage : null;
-    if (current?.W && current.W.t >= (reading.W?.t ?? -Infinity)) {
+    if (current?.W && current.W.t === reading.W?.t) {
       changed ||= stage !== reading.stage;
       reading.stage = stage;
       if (stage !== null && this.isFresh(current.W.t)) {
@@ -798,12 +812,14 @@ export class Monitor {
         states.push({ device_feature_external_id: externalId, state });
       if (has.height && fresh('W')) {
         push(feature.height, reading.W.v);
-        if (reading.trend) {
-          states.push({
-            device_feature_external_id: feature.trend,
-            text: capitalize(TREND_NAMES[language][reading.trend]),
-          });
-        }
+      }
+      if (has.height && reading.W) {
+        // Unknown without a recent trend: an old "rising" never stays shown.
+        const trend = fresh('W') && reading.trend ? reading.trend : 'unknown';
+        states.push({
+          device_feature_external_id: feature.trend,
+          text: capitalize(TREND_NAMES[language][trend]),
+        });
       }
       if (has.alert_level && fresh('W') && Number.isInteger(reading.stage)) {
         push(feature.alert_level, reading.stage);

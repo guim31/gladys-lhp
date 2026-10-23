@@ -278,3 +278,12 @@ long, et sur un « Sie »/« Ihr… » de politesse en allemand. Le store exige 
   dans les réponses enregistrées (`api.set`).
 - Prettier reformaterait les réponses enregistrées : `/test/fixtures/lhp/` est dans
   `.prettierignore`, et le script BW est en `.txt` (`node --test` lancerait un `.js` de `test/`).
+- Relecture du 24/10 : niveau atteint dès le seuil (`>=`, la Meldestufe s'applique à partir du
+  Richtwert ; lhpapi fait `>`) ; une lecture datée de plus de 15 min dans le futur est ignorée
+  (les autres séries de Hessen sont des prévisions, `seriesOf` ne retombe plus sur la première) ;
+  les pages HTML de BY et SN lisent « 1.050 » comme 1050 (`toNumber(…, { german: true })`) ;
+  chemin et seuils NW/HE/RP relus dans la liste à chaque lecture ; une station en erreur ne fait
+  plus tomber son Land ; une liste de Land absente ne rend pas « inconnues » ses stations et
+  n'enregistre pas le choix « autour de ma maison » ; la tendance repasse à « Inconnue » quand
+  elle n'est plus connue. Reste connu : le jour du passage à l'heure d'hiver, les dates BY/SN de
+  02:00 à 02:59 sont lues en heure d'hiver (une heure par an).

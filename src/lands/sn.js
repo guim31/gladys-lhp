@@ -65,8 +65,8 @@ export function parse(html) {
     const t = parseGermanDate(row(block, 'Datum'));
     const levelText = row(block, 'Wasserstand');
     const flowText = row(block, 'Durchfluss');
-    const level = toNumber(levelText?.split(' ')[0]);
-    const flow = toNumber(flowText?.split(' ')[0]);
+    const level = toNumber(levelText?.split(' ')[0], { german: true });
+    const flow = toNumber(flowText?.split(' ')[0], { german: true });
     const alerts = /\bmeldePegel\b/.test(link[2]);
     const unit = levelText === null ? null : /\bcm\b/.test(levelText) ? 'cm' : 'm';
     stations.push(

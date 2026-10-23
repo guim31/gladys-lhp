@@ -23,6 +23,9 @@ test('German numbers and dates: comma, MEZ/MESZ, local time around the change of
   assert.equal(toNumber('20,90'), 20.9);
   assert.equal(toNumber('1.234,5'), 1234.5);
   assert.equal(toNumber('0.29'), 0.29);
+  assert.equal(toNumber('1.050'), 1.05, 'a decimal point by default (BW, WISKI)');
+  assert.equal(toNumber('1.050', { german: true }), 1050, 'thousands in the HTML pages');
+  assert.equal(toNumber('20,90', { german: true }), 20.9);
   assert.equal(toNumber('--'), null);
   assert.equal(toNumber(''), null);
   assert.equal(parseGermanDate('24.10.2026, 01:00'), at('2026-10-23T23:00:00Z'));
@@ -34,14 +37,14 @@ test('German numbers and dates: comma, MEZ/MESZ, local time around the change of
   assert.equal(parseGermanDate('soon'), null);
 });
 
-test('alert levels from thresholds: the highest one exceeded, as lhpapi', () => {
+test('alert levels from thresholds: the highest one reached', () => {
   const thresholds = [190, 242, 258, 277];
   assert.equal(stageOf(33, thresholds), 0);
-  assert.equal(stageOf(190, thresholds), 0, 'a threshold must be exceeded');
-  assert.equal(stageOf(191, thresholds), 1);
+  assert.equal(stageOf(189, thresholds), 0);
+  assert.equal(stageOf(190, thresholds), 1, 'a Meldestufe applies from its threshold on');
   assert.equal(stageOf(260, thresholds), 3);
   assert.equal(stageOf(500, thresholds), 4);
-  assert.equal(stageOf(450, [400, 450, 480, null]), 1);
+  assert.equal(stageOf(449, [400, 450, 480, null]), 1);
   assert.equal(stageOf(500, [400, 450, 480, null]), 3);
   assert.equal(stageOf(100, null), null);
   assert.equal(stageOf(null, thresholds), null);
@@ -125,6 +128,7 @@ test('WISKI (NRW, Hessen): river stations only, newest value, information levels
   assert.equal(seriesOf(week, '15.P').ts_name, '15.P');
   assert.equal(latest(seriesOf(week, '15.P')).v, 146);
   assert.equal(latest({ data: [['2026-10-23T23:00:00.000+01:00', null]] }), null);
+  assert.equal(seriesOf(week, '15.X'), null, 'never a forecast series instead');
 });
 
 test('Hessen: Meldestufen read from alarmlevel.json, flow from Q', async () => {
@@ -225,4 +229,42 @@ test('HTTP: identifying User-Agent, form POST, failures as HttpError', async () 
   await assert.rejects(getText(network, 'https://example.org/'), /example\.org: fetch failed/);
   const notJson = async () => ({ status: 200, text: async () => '<html>' });
   await assert.rejects(getJson(notJson, 'https://example.org/'), /not JSON/);
+});
+
+test('one station failing does not stop the others of its state', async () => {
+  const api = createApi();
+  const fetch = async (url, init) =>
+    String(url).includes('/measurement-site/26500100')
+      ? { status: 500, text: async () => '' }
+      : api.fetch(url, init);
+  const lhp = new Lhp({ fetch, now: () => at('2026-10-23T23:20:00Z') });
+  const both = await lhp.read([
+    { id: 'RP_26500100', land: 'RP', number: '26500100' },
+    { id: 'RP_1034232320', land: 'RP', number: '1034232320' },
+  ]);
+  assert.deepEqual(both.failed, []);
+  assert.ok(both.readings.has('RP_1034232320'));
+  const alone = await lhp.read([{ id: 'RP_26500100', land: 'RP', number: '26500100' }]);
+  assert.deepEqual(
+    alone.failed.map((item) => item.code),
+    ['RP'],
+  );
+});
+
+test('the files and thresholds of a stored station come from the list again', async () => {
+  const api = createApi();
+  const lhp = new Lhp({ fetch: api.fetch, now: () => at('2026-10-23T23:20:00Z') });
+  const stored = {
+    id: 'NW_2763190000100',
+    land: 'NW',
+    number: '2763190000100',
+    name: 'Bachum',
+    path: 'https://old.example/stations/100/2763190000100',
+    thresholds: [1, 2, 3, null],
+  };
+  const { readings } = await lhp.read([stored]);
+  const bachum = readings.get('NW_2763190000100');
+  assert.match(bachum.path, /^https:\/\/www\.hochwasserportal\.nrw\//);
+  assert.deepEqual(bachum.thresholds, [210, 400, 440, null]);
+  assert.equal(bachum.current.W.v, 88.9);
 });

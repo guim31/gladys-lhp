@@ -30,8 +30,8 @@ export function parse(html) {
     }
     const kind = /[?&]?art=(\w)/.exec(a['data-graph'] ?? '')?.[1] ?? 'w';
     const t = parseGermanDate(a['data-datum']);
-    const level = toNumber(a['data-wert']);
-    const flow = toNumber(a['data-wert2']);
+    const level = toNumber(a['data-wert'], { german: true });
+    const flow = toNumber(a['data-wert2'], { german: true });
     const stage = a['data-ms'] === '' ? null : toNumber(a['data-ms']);
     const hasLevel = kind !== 'q' && level !== null;
     stations.push(

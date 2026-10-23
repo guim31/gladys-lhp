@@ -91,7 +91,7 @@ export class Lhp {
 
   /**
    * Every station of the given states. A state that fails is retried after an
-   * hour and listed in `failed`, its old list serving meanwhile.
+   * hour and listed in `failed` (`stale`: its old list serves meanwhile).
    * @returns {Promise<{ stations: object[], failed: { code: string, error: Error }[] }>}
    */
   async referential(codes = LANDS) {
@@ -99,14 +99,18 @@ export class Lhp {
     const lists = await Promise.all(
       codes.map(async (code) => {
         if (this.now() - (this.failedAt[code] ?? -Infinity) < HOUR) {
-          failed.push({ code, error: new Error('retried later') });
+          failed.push({
+            code,
+            error: new Error('retried later'),
+            stale: Boolean(this.lists[code]),
+          });
           return this.lists[code]?.stations ?? [];
         }
         try {
           return await this.list(code);
         } catch (err) {
           this.failedAt[code] = this.now();
-          failed.push({ code, error: err });
+          failed.push({ code, error: err, stale: Boolean(this.lists[code]) });
           return this.lists[code]?.stations ?? [];
         }
       }),
@@ -180,18 +184,26 @@ export class Lhp {
             }
             return;
           }
-          let known = null;
+          // The list (kept a week) says where the files of a station are and its
+          // thresholds: read again from it, never trusted from what was stored.
+          let listed = null;
+          try {
+            listed = new Map((await this.list(code)).map((item) => [item.id, item]));
+          } catch (err) {
+            if (wanted.some((station) => station.rebuilt || (code !== 'RP' && !station.path))) {
+              throw err;
+            }
+          }
+          const errors = [];
           for (const station of wanted) {
             let target = station;
-            if (station.rebuilt || (code !== 'RP' && !station.path)) {
-              // A station rebuilt from its device: where its files are is in the list.
-              known ??= new Map((await this.list(code)).map((item) => [item.id, item]));
-              const listed = known.get(station.id);
-              if (!listed) {
+            if (listed) {
+              const entry = listed.get(station.id);
+              if (!entry) {
                 unknown.push(station.id);
                 continue;
               }
-              target = { ...station, ...listed };
+              target = { ...station, ...entry };
             }
             try {
               const update = await portal.read(this.fetch, target, this.now());
@@ -201,9 +213,13 @@ export class Lhp {
               if (err instanceof HttpError && err.status === 404) {
                 unknown.push(station.id);
               } else {
-                throw err;
+                // One station failing does not stop the others of its state.
+                errors.push(err);
               }
             }
+          }
+          if (errors.length > 0 && wanted.every((station) => !readings.has(station.id))) {
+            throw errors[0];
           }
         } catch (err) {
           failed.push({ code, error: err });

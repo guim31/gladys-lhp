@@ -79,7 +79,11 @@ function germanParts(time) {
       .map((part) => [part.type, part.value]),
   );
   const date = `${parts.day}.${parts.month}.${parts.year}`;
-  return { date, hour: `${parts.hour}:${parts.minute}`, summer: parts.timeZoneName === 'GMT+2' };
+  return {
+    date,
+    hour: `${parts.hour}:${parts.minute}`,
+    summer: ['CEST', 'GMT+2'].includes(parts.timeZoneName),
+  };
 }
 const german = (n) => String(n).replace('.', ',');
 const iso = (time) => new Date(time).toISOString();

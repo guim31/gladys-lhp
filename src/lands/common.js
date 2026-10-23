@@ -16,8 +16,13 @@
 
 export const TIME_ZONE = 'Europe/Berlin';
 
-/** A finite number from a value or a German text ("20,90", "1.234,5"), else null. */
-export function toNumber(value) {
+/**
+ * A finite number from a value or a text, else null. "20,90" and "1.234,5"
+ * are German; "0.29" keeps its decimal point, unless `german` says the point
+ * groups thousands ("1.050" = 1050, as the HTML pages of Bayern and Sachsen
+ * would write a flood level).
+ */
+export function toNumber(value, { german = false } = {}) {
   if (typeof value === 'number') {
     return Number.isFinite(value) ? value : null;
   }
@@ -25,7 +30,7 @@ export function toNumber(value) {
   if (!/\d/.test(text)) {
     return null;
   }
-  if (text.includes(',')) {
+  if (text.includes(',') || (german && /^-?\d{1,3}(\.\d{3})+$/.test(text))) {
     text = text.replace(/\./g, '').replace(',', '.');
   }
   const number = Number(text);
@@ -96,8 +101,9 @@ export function parseIsoDate(text) {
 
 /**
  * The alert level (0 to 4) of a water level, from the thresholds of levels 1
- * to 4 (null when unknown): the highest level whose threshold is exceeded, as
- * lhpapi computes it. Null without a level or without any threshold.
+ * to 4 (null when unknown): the highest level whose threshold is reached (a
+ * Meldestufe applies from its Richtwert on; lhpapi asks for more than it).
+ * Null without a level or without any threshold.
  */
 export function stageOf(level, thresholds) {
   if (level === null || level === undefined || !thresholds?.some((value) => value !== null)) {
@@ -107,7 +113,7 @@ export function stageOf(level, thresholds) {
     if (
       thresholds[index] !== null &&
       thresholds[index] !== undefined &&
-      level > thresholds[index]
+      level >= thresholds[index]
     ) {
       return index + 1;
     }

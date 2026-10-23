@@ -41,10 +41,10 @@ export const LEVEL_NAMES = {
 };
 
 export const TREND_NAMES = {
-  en: { rising: 'rising', steady: 'steady', falling: 'falling' },
-  fr: { rising: 'monte', steady: 'stable', falling: 'baisse' },
-  de: { rising: 'steigt', steady: 'gleichbleibend', falling: 'fällt' },
-  es: { rising: 'sube', steady: 'estable', falling: 'baja' },
+  en: { rising: 'rising', steady: 'steady', falling: 'falling', unknown: 'unknown' },
+  fr: { rising: 'monte', steady: 'stable', falling: 'baisse', unknown: 'inconnue' },
+  de: { rising: 'steigt', steady: 'gleichbleibend', falling: 'fällt', unknown: 'unbekannt' },
+  es: { rising: 'sube', steady: 'estable', falling: 'baja', unknown: 'desconocida' },
 };
 
 // Values of the "Last reading" feature.

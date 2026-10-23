@@ -30,12 +30,15 @@ export function latest(series) {
   return null;
 }
 
-/** The series named `tsName` of a week.json, else its first one. */
+/**
+ * The series named `tsName` of a week.json (null when missing: the other
+ * series of Hessen are forecasts), or the first one when no name is asked.
+ */
 export function seriesOf(body, tsName) {
   if (!Array.isArray(body)) {
     return null;
   }
-  return (tsName && body.find((series) => series?.ts_name === tsName)) || body[0] || null;
+  return tsName ? (body.find((series) => series?.ts_name === tsName) ?? null) : (body[0] ?? null);
 }
 
 /** A week.json, or null when the station does not publish that parameter (404). */

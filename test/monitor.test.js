@@ -186,7 +186,7 @@ test('the trend compares the level with the one of about an hour before', () => 
 test('the trend feature, once an hour of readings is known', async (t) => {
   const { world, devices } = await followed(t, [MUENCHEN], { language: 'de' });
   const trend = featureId(devices[0], 'trend');
-  assert.equal(lastValue(world, trend), undefined, 'one reading: no trend yet');
+  assert.equal(lastValue(world, trend), 'Unbekannt', 'one reading: no trend yet');
   for (const [minutes, level] of [
     [15, 92],
     [15, 95],
@@ -198,6 +198,39 @@ test('the trend feature, once an hour of readings is known', async (t) => {
     await world.monitor.runCycle();
   }
   assert.equal(lastValue(world, trend), 'Steigt');
+  world.clock.advance(7 * HOUR);
+  await world.monitor.runCycle();
+  assert.equal(lastValue(world, trend), 'Unbekannt', 'a silent gauge has no trend');
+});
+
+test('a reading dated in the future is ignored and blocks nothing', async (t) => {
+  const { world, devices } = await followed(t, [MUENCHEN]);
+  const height = featureId(devices[0], 'height');
+  world.api.set(MUENCHEN, { t: world.clock.now() + 3 * HOUR, W: 500, stage: 3 });
+  await cycle(world, 1);
+  assert.equal(lastValue(world, height), 90);
+  assert.equal(world.fake.sceneEvents.length, 0);
+  world.api.set(MUENCHEN, { t: world.clock.now(), W: 95, stage: 0 });
+  await cycle(world, 1);
+  assert.equal(lastValue(world, height), 95);
+});
+
+test('a state list missing: its stations named in the configuration stay followed', async (t) => {
+  const world = await createWorld({ config: { stations: 'München, Trier' } });
+  t.after(() => world.app.stop());
+  assert.deepEqual(world.monitor.followed(), [MUENCHEN, TRIER]);
+  const again = await createWorld({
+    config: { stations: 'München, Trier', around_home: '20' },
+    connect: false,
+  });
+  t.after(() => again.app.stop());
+  again.api.down.BY = 503;
+  await again.gladys.connect();
+  await again.app.ready;
+  await again.monitor.running;
+  assert.deepEqual(again.monitor.followed(), [TRIER]);
+  assert.doesNotMatch(again.fake.connectionStatus.message?.en ?? '', /Unknown station: München/);
+  assert.equal(again.monitor.data.home, null, 'the house stations are chosen again later');
 });
 
 test('alert levels: one trigger per change, raised or lowered, in every format', async (t) => {
