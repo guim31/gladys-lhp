@@ -31,16 +31,22 @@ pushing.
 ## Architecture
 
 ```
-index.js                          SDK wiring only: handlers registered before connect()
-src/devices/index.js              registry of the device blueprints + dispatch helpers
-src/devices/<type>.js             one device type per file (buildDevice, onPoll, onSetValue...)
-src/scenes.js                     scene action handlers (manifest `scene_actions`)
-src/widgets.js                    dashboard widget handlers (manifest `widgets`)
+index.js                          SDK wiring only (handlers registered in src/app.js)
+src/app.js                        registers every SDK handler on the monitor, action and widget
+src/monitor.js                    followed gauges, refresh cycles, states, scene triggers
+src/lhp.js                        the state portals behind one interface, LHP map (coordinates)
+src/lands/common.js               German numbers and dates, alert levels from thresholds, station shape
+src/lands/by.js, bw.js, sn.js     "bulk" states: one document holds every gauge
+src/lands/wiski.js, rp.js         one request per gauge: NRW and Hessen (WISKI), Rheinland-Pfalz
+src/devices.js                    Gladys device of a gauge (features, names, external ids)
+src/search.js                     "Find stations" configuration action
+src/widgets.js                    dashboard widget `stations`
+src/messages.js                   texts sent from the container, four languages
 src/config.js                     DEFAULT_CONFIG (mirrors the manifest defaults) + normalization
-src/weather.js                    example driver (Open-Meteo)
-gladys-assistant-integration.json manifest: name, config_schema, actions, image...
-docs/en.md, docs/fr.md            user documentation, re-hosted by Gladys (mandatory)
-test/                             node --test, against the SDK's fake Gladys (integration-sdk/testing)
+src/http.js, geo.js, store.js     GET/POST, distances, /data persistence
+gladys-assistant-integration.json manifest: config_schema, action, scene triggers, widget
+docs/{en,fr,de,es}.md             user documentation, re-hosted by Gladys (same sections)
+test/                             node --test, against the SDK's fake Gladys and recorded answers
 .github/scripts/release.mjs       release helpers (manifest bump, changelog), tested in test/
 ```
 
@@ -70,8 +76,10 @@ test/                             node --test, against the SDK's fake Gladys (in
   `type: "provider"`: 5.1.0). `test/manifest.test.js` ties the manifest to the
   code (defaults, action, scene and widget handlers): change both sides
   together.
-- **User-facing text** is bilingual (English and French): action messages,
-  manifest texts, and `docs/en.md` / `docs/fr.md`, kept in sync.
+- **User-facing text** is in four languages (English, French, German with
+  "du", Spanish with "usted"): action messages, manifest texts, widget texts,
+  feature names, and `docs/{en,fr,de,es}.md`, kept in sync
+  (`test/i18n.test.js`).
 - **Style.** Prettier formats, ESLint catches mistakes. Comments explain why,
   in English. Tests never touch the network.
 
@@ -233,3 +241,40 @@ long, et sur un « Sie »/« Ihr… » de politesse en allemand. Le store exige 
 - Docs `en`, `fr`, `de`, `es` avec les mêmes sections.
 - Chauffe, ouverture, sécurité : ne rien rendre pilotable « comme un thermostat » ou par un assistant
   vocal quand une erreur serait dangereuse (leçon d'OctoPrint).
+
+## Hochwasserportal (propre à cette intégration)
+
+- Pas d'API commune : le portail LHP (hochwasserzentralen.de) n'affiche que le niveau d'alerte et
+  les coordonnées de ~2 400 pegels (dont CH, CZ, NL…) ; les hauteurs restent sur le portail de
+  chaque Land. Six Länder couverts (BY, BW, SN, NW, HE, RP, ~2 100 pegels, ~930 avec niveaux
+  d'alerte), sur le modèle de `lhpapi` (stephan192, Apache 2.0, bibliothèque de l'intégration HA
+  `hochwasserportal`). Identifiant `<Land>_<numéro>` de lhpapi, gardé tel quel (liste HA collable).
+- Les dix autres Länder ne sont que du HTML à gratter ou des API à part (BB, BE, HB, HH, MV, NI,
+  SL, ST, SH, TH) : pas couverts, listés dans le README. Ajouter un Land = un module de
+  `src/lands/` qui exporte `{ code, name, site, bulk, list(), read()? }` et l'entrée de `PORTALS`.
+- **BY** : une page HTML, attributs `data-*` des `<img class="bobbl">` ; `art=s` = lac/retenue en
+  m NN, `art=q` = débit seul, `data-ms` vide = pas de Meldestufe. Pas de coordonnées.
+- **BW** : un script JS (`HVZ_Site.PEG_DB`, lignes en CRLF) ; colonnes 30 à 33 = seuils des
+  niveaux 1 à 4 en cm, colonne 24 = « HMO » en m (le plus bas des deux ouvre le niveau 1, comme
+  lhpapi). Les identifiants BW de la carte LHP (`BW_108`) ne sont **pas** ceux du portail
+  (`BW_00076`) : pas de coordonnées LHP pour BW, mais le script en a.
+- **SN** : page HTML ; la classe `meldePegel` marque les pegels d'alerte, le niveau se lit sur le
+  texte « Alarmstufe n » ou la couleur du statut (« Niedrigwasser » = 0). Pas de coordonnées.
+- **NW** (`www.hochwasserportal.nrw`, l'ancien `hochwasserportal.nrw/lanuv` redirige) et **HE** :
+  WISKI, fichiers statiques ; dates en `+01:00` toute l'année (correct en ISO). NW : 3
+  Informationswerte dans `stations.json`, pas de débit (`Q/week.json` en 404). HE :
+  `W/alarmlevel.json` (Meldestufe 1 à 3), lu une fois par jour.
+- **RP** : `/api/v1/config` (288 ko, une fois par semaine) donne seuils (`W["22"…"19"]` = niveaux
+  1 à 4) et noms ; coordonnées UTM seulement, d'où la carte LHP.
+- **Carte LHP** (`webservices/get_lagepegel.php`, POST `ki=<n>`) : le nombre `ki` est lu dans la
+  page d'accueil (`addLagePegel(…)`). Elle ne couvre que les pegels d'annonce de crue : « Autour
+  de ma maison » ne voit en BY, SN et RP que ceux-là (documenté).
+- Niveau d'alerte : `risk/integer` 0 à 4 (comme Vigicrues). Tendance en `text/text` : un
+  `unknown/unknown` seul de son type afficherait « Inconnu » au tableau de bord. Pas de
+  fonctionnalité « joignable » (un `input/binary` seul afficherait « État de l'entrée ») : le
+  déclencheur `readings_stopped` et « Dernière mesure » en tiennent lieu. Un seuil libre reste
+  une condition de scène native sur la hauteur.
+- Le 24/10/2026, aucun pegel des six Länder n'était en alerte : les tests écrivent les alertes
+  dans les réponses enregistrées (`api.set`).
+- Prettier reformaterait les réponses enregistrées : `/test/fixtures/lhp/` est dans
+  `.prettierignore`, et le script BW est en `.txt` (`node --test` lancerait un `.js` de `test/`).

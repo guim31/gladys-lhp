@@ -1,0 +1,409 @@
+{
+ "measurementsite": {
+  "26500100": {
+   "id": 557,
+   "number": "26500100",
+   "riverMunicipalName": null,
+   "type": "default",
+   "name": "Trier",
+   "mh1": 600,
+   "mh2": null,
+   "hsw1": null,
+   "hsw2": null,
+   "isExternal": false,
+   "isSeaSite": false,
+   "catchmentArea": 23857,
+   "easting": 328988.6,
+   "eastingOffset": null,
+   "northing": 5511558,
+   "northingOffset": null,
+   "elevation": 121,
+   "riverKilometer": 195.3,
+   "hasPrediction": true,
+   "legendText": "Vorhersage der HVZ Rheinland-Pfalz",
+   "legendURL": null,
+   "rivers": [
+    "2600000000"
+   ],
+   "riverAreas": [
+    4
+   ],
+   "slug": "trier"
+  },
+  "1034232320": {
+   "id": 719,
+   "number": "1034232320",
+   "riverMunicipalName": "Kyll",
+   "type": "municipal",
+   "name": "Auw an der Kyll",
+   "mh1": null,
+   "mh2": null,
+   "hsw1": null,
+   "hsw2": null,
+   "isExternal": false,
+   "isSeaSite": false,
+   "catchmentArea": 0,
+   "easting": 328578.8,
+   "eastingOffset": null,
+   "northing": 5530303.7,
+   "northingOffset": null,
+   "elevation": 0,
+   "riverKilometer": null,
+   "hasPrediction": false,
+   "legendText": null,
+   "legendURL": null,
+   "rivers": [
+    "26600000000"
+   ],
+   "riverAreas": [
+    8888888888
+   ],
+   "slug": "auw-an-der-kyll"
+  }
+ },
+ "rivers": {
+  "2600000000": {
+   "name": "Mosel"
+  }
+ },
+ "riverareas": {
+  "4": {
+   "rivers": {
+    "2600000000": {
+     "name": "Mosel",
+     "measurementSites": [
+      4250640,
+      5730610,
+      7010610,
+      850061001,
+      26100102,
+      229150,
+      2610012,
+      2650012,
+      229151,
+      26500100,
+      26500150,
+      26700200,
+      26700400,
+      26700600,
+      26900400,
+      26900900
+     ]
+    },
+    "2617560000": {
+     "name": "Meurthe",
+     "measurementSites": [
+      6051020,
+      676101001
+     ]
+    },
+    "2620000000": {
+     "name": "Sauer",
+     "measurementSites": [
+      11,
+      26200505,
+      16
+     ]
+    },
+    "2622000000": {
+     "name": "Alzette",
+     "measurementSites": [
+      7,
+      42
+     ]
+    },
+    "2626000000": {
+     "name": "Our",
+     "measurementSites": [
+      9926,
+      9914,
+      6330,
+      13,
+      26260303
+     ]
+    },
+    "2626800000": {
+     "name": "Irsen",
+     "measurementSites": [
+      26260609
+     ]
+    },
+    "2628000000": {
+     "name": "Prüm",
+     "measurementSites": [
+      26280050,
+      26280300,
+      26280366,
+      26280402,
+      26280504
+     ]
+    },
+    "2628600000": {
+     "name": "Enz",
+     "measurementSites": [
+      26280650
+     ]
+    },
+    "2628800000": {
+     "name": "Nims",
+     "measurementSites": [
+      26280708,
+      26280800,
+      26280854
+     ]
+    },
+    "2634000000": {
+     "name": "Albach",
+     "measurementSites": [
+      26300500
+     ]
+    },
+    "2640000000": {
+     "name": "Saar",
+     "measurementSites": [
+      9021010,
+      9091060,
+      9200100,
+      9301010,
+      26400220,
+      26400550,
+      26400670
+     ]
+    },
+    "2642000000": {
+     "name": "Blies",
+     "measurementSites": [
+      9372050,
+      9372053
+     ]
+    },
+    "2642600000": {
+     "name": "Schwarzbach",
+     "measurementSites": [
+      26420206,
+      26420308,
+      1373130
+     ]
+    },
+    "2642628000": {
+     "name": "Queidersbach",
+     "measurementSites": [
+      26420159
+     ]
+    },
+    "2642660000": {
+     "name": "Wallhalbe",
+     "measurementSites": [
+      26420465
+     ]
+    },
+    "2642678000": {
+     "name": "Auerbach",
+     "measurementSites": [
+      26420487
+     ]
+    },
+    "2642680000": {
+     "name": "Hornbach",
+     "measurementSites": [
+      9402110,
+      26420603
+     ]
+    },
+    "2642684000": {
+     "name": "Felsalbe",
+     "measurementSites": [
+      26420705,
+      26420807
+     ]
+    },
+    "2642686000": {
+     "name": "Schwalb",
+     "measurementSites": [
+      26420909
+     ]
+    },
+    "2642688000": {
+     "name": "Bickenalb",
+     "measurementSites": [
+      26420920
+     ]
+    },
+    "2649600000": {
+     "name": "Leuk",
+     "measurementSites": [
+      26490609
+     ]
+    },
+    "2656000000": {
+     "name": "Ruwer",
+     "measurementSites": [
+      26560103,
+      26560307
+     ]
+    },
+    "2656400000": {
+     "name": "Großbach",
+     "measurementSites": [
+      26560500
+     ]
+    },
+    "2660000000": {
+     "name": "Kyll",
+     "measurementSites": [
+      26600208,
+      26600128,
+      26600106,
+      26600300,
+      26600503,
+      26600707,
+      26600900
+     ]
+    },
+    "2662000000": {
+     "name": "Taubkyll",
+     "measurementSites": [
+      26620806
+     ]
+    },
+    "2664000000": {
+     "name": "Oosbach",
+     "measurementSites": [
+      26640202,
+      26640406
+     ]
+    },
+    "2672000000": {
+     "name": "Feller Bach",
+     "measurementSites": [
+      26720505
+     ]
+    },
+    "2674000000": {
+     "name": "Salm",
+     "measurementSites": [
+      26740284,
+      26740309,
+      26740455,
+      26740604
+     ]
+    },
+    "2674200000": {
+     "name": "Lohsalm",
+     "measurementSites": [
+      26740273
+     ]
+    },
+    "2676000000": {
+     "name": "Dhron",
+     "measurementSites": [
+      26760306
+     ]
+    },
+    "2676800000": {
+     "name": "Kleine Dhron",
+     "measurementSites": [
+      26760601
+     ]
+    },
+    "2677400000": {
+     "name": "Veldenzerbach",
+     "measurementSites": [
+      26770707
+     ]
+    },
+    "2678000000": {
+     "name": "Lieser",
+     "measurementSites": [
+      26780201,
+      26780450,
+      26780609
+     ]
+    },
+    "2679200000": {
+     "name": "Kautenbach",
+     "measurementSites": [
+      26790205
+     ]
+    },
+    "2680000000": {
+     "name": "Alf",
+     "measurementSites": [
+      26800207,
+      26800400,
+      26830605
+     ]
+    },
+    "2682000000": {
+     "name": "Sammetbach",
+     "measurementSites": [
+      26820500
+     ]
+    },
+    "2684000000": {
+     "name": "Ueßbach",
+     "measurementSites": [
+      26840507
+     ]
+    },
+    "2692000000": {
+     "name": "Endertbach",
+     "measurementSites": [
+      26920402
+     ]
+    },
+    "2694000000": {
+     "name": "Flaumbach",
+     "measurementSites": [
+      26940501
+     ]
+    },
+    "2696000000": {
+     "name": "Elzbach",
+     "measurementSites": [
+      26960906
+     ]
+    },
+    "2698000000": {
+     "name": "Baybach",
+     "measurementSites": [
+      26980404,
+      26980700
+     ]
+    }
+   },
+   "name": "Mosel",
+   "slug": "mosel"
+  },
+  "8888888888": {
+   "name": "Kommunale Messstellen",
+   "slug": "kommunale-messstellen",
+   "rivers": []
+  }
+ },
+ "legends": {
+  "thresholds": {
+   "26500100": {
+    "W": {
+     "23": 314,
+     "25": 0,
+     "24": 224,
+     "21": 1000,
+     "20": 1043,
+     "19": 1127,
+     "22": 795
+    },
+    "Q": {
+     "22": 1860,
+     "30": 4400,
+     "24": 54.4,
+     "19": 3950,
+     "21": 3000,
+     "20": 3300,
+     "23": 280,
+     "25": 0
+    }
+   }
+  }
+ }
+}
