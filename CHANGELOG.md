@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-10-24
+
 ### Added
 
 - One Gladys device per gauge of the flood portals of Bavaria, Baden-Württemberg, Saxony, North
@@ -32,3 +34,6 @@ the notes of the version's GitHub Release.
   Bavaria, Baden-Württemberg and Saxony, without relying on Gladys polling. A state portal that
   fails does not stop the others.
 - Texts and documentation in English, French, German and Spanish.
+
+[Unreleased]: https://github.com/guim31/gladys-lhp/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/guim31/gladys-lhp/releases/tag/v1.0.0
