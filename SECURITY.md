@@ -30,6 +30,18 @@ Gladys before reporting a problem.
 
 In scope: the code of this repository and the Docker image it publishes.
 
+What the integration handles:
+
+- **Stored in `/data`** (`/data/lhp.json`): what it learnt about the followed gauges (id, name,
+  river, coordinates of the gauge, unit, alert thresholds), the last readings and the last alert
+  levels. No secret, no account, no token: the portals need none. The **house coordinates** are
+  read from Gladys (manifest `location: true`) only to find the nearest gauges inside the
+  container; they are never sent, stored nor logged.
+- **Network**: HTTPS requests to public flood portals only: `www.hnd.bayern.de`,
+  `www.hvz.baden-wuerttemberg.de`, `www.umwelt.sachsen.de`, `www.hochwasserportal.nrw`,
+  `www.hlnug.de`, `hochwasser.rlp.de` and `www.hochwasserzentralen.de` (the LHP map, for the
+  coordinates). Their pages are parsed as text, never executed. Nothing listens on the network.
+
 Out of scope: Gladys Assistant itself (see its
 [security policy](https://github.com/GladysAssistant/Gladys/security/policy)),
-and the third-party services and devices the integration talks to.
+and the flood portals of the states.
