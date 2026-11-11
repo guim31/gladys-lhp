@@ -34,7 +34,7 @@ gauges of the states, with the alert levels the states publish. Both can run sid
 
 ## Requirements
 
-- Gladys Assistant **5.1.0** or later.
+- Gladys Assistant **5.3.0** or later.
 - Internet access from Gladys: the integration reads the portals of the states
   (`www.hnd.bayern.de`, `www.hvz.baden-wuerttemberg.de`, `www.umwelt.sachsen.de`,
   `www.hochwasserportal.nrw`, `www.hlnug.de`, `hochwasser.rlp.de`) and the LHP map

@@ -36,7 +36,7 @@ laufen.
 
 ## Voraussetzungen
 
-- Gladys Assistant **5.1.0** oder neuer.
+- Gladys Assistant **5.3.0** oder neuer.
 - Internetzugang von Gladys aus: Die Integration liest die Landesportale
   (`www.hnd.bayern.de`, `www.hvz.baden-wuerttemberg.de`, `www.umwelt.sachsen.de`,
   `www.hochwasserportal.nrw`, `www.hlnug.de`, `hochwasser.rlp.de`) und die LHP-Karte
