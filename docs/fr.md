@@ -36,7 +36,7 @@ peuvent tourner ensemble.
 
 ## Prérequis
 
-- Gladys Assistant **5.1.0** ou plus récent.
+- Gladys Assistant **5.3.0** ou plus récent.
 - Un accès Internet depuis Gladys : l'intégration lit les portails des Länder
   (`www.hnd.bayern.de`, `www.hvz.baden-wuerttemberg.de`, `www.umwelt.sachsen.de`,
   `www.hochwasserportal.nrw`, `www.hlnug.de`, `hochwasser.rlp.de`) et la carte du LHP

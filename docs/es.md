@@ -37,7 +37,7 @@ vez.
 
 ## Requisitos
 
-- Gladys Assistant **5.1.0** o posterior.
+- Gladys Assistant **5.3.0** o posterior.
 - Acceso a Internet desde Gladys: la integración lee los portales de los Länder
   (`www.hnd.bayern.de`, `www.hvz.baden-wuerttemberg.de`, `www.umwelt.sachsen.de`,
   `www.hochwasserportal.nrw`, `www.hlnug.de`, `hochwasser.rlp.de`) y el mapa del LHP

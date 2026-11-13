@@ -36,7 +36,7 @@ side.
 
 ## Requirements
 
-- Gladys Assistant **5.1.0** or later, with Internet access.
+- Gladys Assistant **5.3.0** or later, with Internet access.
 - For "around my house": the location of your house in Gladys.
 
 ## Installation
